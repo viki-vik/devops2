@@ -1,0 +1,16 @@
+replicaCount: 2
+
+image:
+  repository: my-dockerhub/flask-app
+  tag: latest
+
+service:
+  type: NodePort
+  port: 80
+
+ingress:
+  enabled: true
+  hosts:
+    - host: test.vic.xyz
+      paths:
+        - /
