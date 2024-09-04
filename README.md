@@ -1,4 +1,4 @@
-## Flask Application Deployment Guide
+## Run Flask Application on EKS Cluster
 ##### This repository contains the necessary files and configurations to deploy a Flask application on an EKS cluster using Docker, Kubernetes, Helm, and Terraform.
 
 #### Step 1: Install Dependencies
