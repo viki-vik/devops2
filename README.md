@@ -1,20 +1,6 @@
 ## Run Flask Application on EKS Cluster
 ##### This repository contains the necessary files and configurations to deploy a Flask application on an EKS cluster using Docker, Kubernetes, Helm, and Terraform.
 
-#### Step 1: Install Dependencies
-Ensure you have Python 3.9 installed. Install the necessary dependencies:
-
-```
-pip install -r requirements.txt
-```
-#### Step 2: Run Flask Application
-Run the Flask application:
-```
-export FLASK_APP=app/app.py
-flask run
-```
-The application will be accessible at [http://127.0.0.1:5000].
-
 ### Building and Running Docker Container
 #### Step 1: Build Docker Image
 To build the Docker image for the Flask app, run:
