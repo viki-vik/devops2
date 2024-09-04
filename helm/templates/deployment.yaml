@@ -1,33 +1,61 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: {{ .Release.Name }}-flask-app
+  name: {{ include "flask-app.fullname" . }}
   labels:
-    app: {{ .Release.Name }}-flask-app
+    app: {{ include "flask-app.name" . }}
+    {{- include "flask-app.labels" . | nindent 4 }}
 spec:
   replicas: {{ .Values.replicaCount }}
   selector:
     matchLabels:
-      app: {{ .Release.Name }}-flask-app
+      app: {{ include "flask-app.name" . }}
   template:
     metadata:
       labels:
-        app: {{ .Release.Name }}-flask-app
+        app: {{ include "flask-app.name" . }}
+        {{- include "flask-app.labels" . | nindent 8 }}
     spec:
       containers:
       - name: flask-app
-        image: "{{ .Values.image.repository }}:{{ .Values.image.tag }}"
+        image: "{{ .Values.image.repository }}:{{ .Values.image.tag | default .Chart.AppVersion }}"
         ports:
         - containerPort: 5000
+          protocol: TCP
         env:
         - name: FLASK_ENV
-          value: "production"
+          value: "{{ .Values.env.FLASK_ENV | default "production" }}"
         - name: FLASK_APP
-          value: "app.py"
+          value: "{{ .Values.env.FLASK_APP | default "app.py" }}"
+        resources:                        # Add resource requests and limits
+          requests:
+            memory: "{{ .Values.resources.requests.memory }}"
+            cpu: "{{ .Values.resources.requests.cpu }}"
+          limits:
+            memory: "{{ .Values.resources.limits.memory }}"
+            cpu: "{{ .Values.resources.limits.cpu }}"
+        livenessProbe:                    # Add liveness probe
+          httpGet:
+            path: /
+            port: 5000
+          initialDelaySeconds: 30
+          timeoutSeconds: 5
+        readinessProbe:                   # Added readiness probe
+          httpGet:
+            path: /
+            port: 5000
+          initialDelaySeconds: 30
+          timeoutSeconds: 5
         volumeMounts:
         - name: config-volume
           mountPath: /app/config
       volumes:
       - name: config-volume
         configMap:
-          name: {{ .Release.Name }}-config
+          name: {{ include "flask-app.fullname" . }}-config
+      nodeSelector:                       # Add nodeSelector for specific node assignment
+        {{ .Values.nodeSelector | toYaml | nindent 8 }}
+      tolerations:                        # Add tolerations for taints
+        {{ .Values.tolerations | toYaml | nindent 8 }}
+      affinity:                           # Add affinity rules
+        {{ .Values.affinity | toYaml | nindent 8 }}
