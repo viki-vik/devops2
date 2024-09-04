@@ -25,7 +25,7 @@ To run the Docker container on port 80:
 ```
 docker run -d -p 80:5000 --name flask-app flask-app:latest
 ```
-The application will be accessible at [http://localhost].
+The application will be accessible at [ http://localhost ].
 
 ### Deploying with Kubernetes
 If the EKS cluster is already deployed with terraform destroy it by running this command:
