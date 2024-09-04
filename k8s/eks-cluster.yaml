@@ -2,31 +2,79 @@ apiVersion: eksctl.io/v1alpha5
 kind: ClusterConfig
 
 metadata:
-  name   : devops2-eks
+  name: devops2-eks
   version: "1.30"
-  region : us-east-1
-  
+  region: us-east-1
+  tags:                           # Add tags for better resource management and tracking
+    environment: development
+    team: devops
+
 vpc:
- subnets:
-   public:
+  id: vpc-xxxxxxx                 # Optionally specify an existing VPC ID, if applicable
+  cidr: "10.0.0.0/16"             # Add VPC CIDR block for new VPC creation (optional)
+  subnets:
+    public:
       us-east-1a: { id: subnet-0a40e7beb104e25cb }
       us-east-1b: { id: subnet-040425d052d1d07d1 }
-
-   private:
+    private:
       us-east-1a: { id: subnet-066502d8331d198cf }
       us-east-1b: { id: subnet-0a11d78468a9e28a5 }
+  nat:
+    gateway: Single               # Add NAT Gateway for internet access in private subnets
 
 managedNodeGroups:
-  - name             : worker-group-1
-    instanceType     : m5.large
-    desiredCapacity  : 2
-    labels           : { role: worker1 }   
-    volumeSize       : 80
+  - name: worker-group-1
+    instanceType: m5.large
+    desiredCapacity: 2
+    minSize: 1                    # Add minSize for scaling down
+    maxSize: 4                    # Add maxSize for scaling up
+    volumeSize: 80
     privateNetworking: true
-    
-  - name             : worker-group-2
-    instanceType     : r5.large
-    desiredCapacity  : 2
-    volumeSize       : 100
-    labels           : { role: worker2 }    
-    privateNetworking: true    
+    ssh:                          # Add SSH access to nodes with a specified key
+      allow: true
+      publicKeyName: your-key-name
+    labels:
+      role: worker1
+    tags:                         # Add tags for nodes in this group
+      Name: devops2-eks-worker-group-1
+      Environment: development
+
+  - name: worker-group-2
+    instanceType: r5.large
+    desiredCapacity: 2
+    minSize: 1
+    maxSize: 4
+    volumeSize: 100
+    privateNetworking: true
+    ssh:
+      allow: true
+      publicKeyName: your-key-name
+    labels:
+      role: worker2
+    tags:
+      Name: devops2-eks-worker-group-2
+      Environment: development
+
+iam:                             # Add IAM role settings for better permissions management
+  withOIDC: true
+  serviceAccounts:
+    - metadata:
+        name: external-dns
+        namespace: kube-system
+      attachPolicyARNs:
+        - arn:aws:iam::aws:policy/AmazonRoute53FullAccess
+      roleName: eks-external-dns-role
+
+cloudWatch:
+  clusterLogging:
+    enableTypes:                  # Enable cluster-level logging to CloudWatch
+      - api
+      - audit
+      - authenticator
+
+secretsEncryption:
+  keyARN: arn:aws:kms:us-east-1:058264138725:key/abcd-efgh-ijkl-mnop   # Add encryption for secrets using KMS
+
+availabilityZones:                # Add specific availability zones to ensure better high availability
+  - us-east-1a
+  - us-east-1b
