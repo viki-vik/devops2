@@ -3,14 +3,38 @@ replicaCount: 2
 image:
   repository: my-dockerhub/flask-app
   tag: latest
+  pullPolicy: IfNotPresent  # Add the image pull policy
 
 service:
   type: NodePort
   port: 80
+  targetPort: 5000  # Add target port
 
 ingress:
   enabled: true
+  annotations:  # Add annotations for ingress
+    kubernetes.io/ingress.class: nginx
+    nginx.ingress.kubernetes.io/rewrite-target: /
   hosts:
     - host: test.vic.xyz
       paths:
-        - /
+        - path: /
+          pathType: ImplementationSpecific  # Specify pathType for better control
+
+resources:  # Add resources for better control over pod resource allocation
+  limits:
+    cpu: 500m
+    memory: 512Mi
+  requests:
+    cpu: 250m
+    memory: 256Mi
+
+nodeSelector: {}  # Add nodeSelector for scheduling control
+tolerations: []  # Add tolerations if the app needs to run on tainted nodes
+affinity: {}  # Add affinity rules for advanced scheduling
+
+autoscaling:  # Add optional autoscaling configuration
+  enabled: false
+  minReplicas: 2
+  maxReplicas: 5
+  targetCPUUtilizationPercentage: 80
