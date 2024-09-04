@@ -4,11 +4,15 @@ metadata:
   name: {{ .Release.Name }}-flask-app
   labels:
     app: {{ .Release.Name }}-flask-app
+    release: {{ .Release.Name }}
+    environment: {{ .Values.environment | default "production" }}
 spec:
-  type: {{ .Values.service.type }}
+  type: {{ .Values.service.type | default "ClusterIP" }}
   selector:
     app: {{ .Release.Name }}-flask-app
   ports:
-  - protocol: TCP
-    port: {{ .Values.service.port }}
-    targetPort: 5000
+    - name: http
+      protocol: TCP
+      port: {{ .Values.service.port | default 80 }}
+      targetPort: {{ .Values.service.targetPort | default 5000 }}
+  sessionAffinity: {{ .Values.service.sessionAffinity | default "None" }}
