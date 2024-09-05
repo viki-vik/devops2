@@ -16,8 +16,9 @@ terraform apply
 
 ### Building and Running Docker Container
 #### Step 1: Build Docker Image
-To build the Docker image for the Flask app, run:
+To build the Docker image for the Flask app. Navigate to `flask-app` directory and run:
 ```
+cd flask-app
 docker build -t flask-app:latest .
 ```
 #### Step 2: Run Docker Container
@@ -38,6 +39,7 @@ Use the following command to deploy EKS cluster with kubernetes manifest:
 eksctl create cluster -f k8s/eks-clusterconfig.yaml
 ```
 #### Step 2: Deploy the Flask Application
+Run the application on any kind of Kubernetes distribution: k3d, rancher, minikube, or else.
 Deploy the Flask app using kubectl:
 ```
 kubectl apply -f k8s/deployment.yaml
