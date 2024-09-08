@@ -7,7 +7,7 @@ module "eks" {
   source = "../modules/eks"
 
   vpc_id     = "vpc-02c42497a5d880aa4"
-  subnet_ids = ["subnet-abcde012", "subnet-bcde012a", "subnet-fghi345a"]
+  subnet_ids = ["subnet-abcde012", "subnet-bcde012a"]
 }
 
 module "alb" {
