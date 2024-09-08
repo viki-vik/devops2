@@ -2,28 +2,30 @@ module "eks" {
   source  = "terraform-aws-modules/eks/aws"
   version = "20.18.0"
 
+  # Cluster name and version
   cluster_name    = "devops2-eks-cluster"
   cluster_version = "1.30"
 
+  # Public access to the cluster API endpoint
   cluster_endpoint_public_access = true
-  cluster_endpoint_private_access = false  # Set to true if you need private endpoint access
 
-  vpc_id                   = "vpc-02c42497a5d880aa4"
-  subnet_ids               = ["subnet-abcde012", "subnet-bcde012a", "subnet-fghi345a"]
-  control_plane_subnet_ids = ["subnet-xyzde987", "subnet-slkjf456", "subnet-qeiru789"]
+  # VPC and subnet configurations
+  vpc_id                   = var.vpc_id
+  subnet_ids               = var.subnet_ids
+  control_plane_subnet_ids = var.control_plane_subnet_ids
 
-  # EKS Managed Node Group(s)
+  # EKS Managed Node Groups configuration
   node_groups = {
     example = {
       desired_capacity = 2
       max_capacity     = 10
       min_capacity     = 2
-      instance_types   = ["m5.xlarge"]
-      ami_type         = "AL2023_x86_64_STANDARD"  # Specify the AMI type for EKS managed node groups
+      instance_types   = ["t3.medium"]
+      ami_type         = "AL2023_x86_64_STANDARD"
     }
   }
 
-  # Access configuration
+  # Enable admin permissions for the cluster creator
   enable_cluster_creator_admin_permissions = true
 
   # IAM roles and policies for cluster access
@@ -39,9 +41,9 @@ module "eks" {
     }
   }
 
+  # Tags
   tags = {
     Environment = "dev"
     Terraform   = "true"
   }
-
 }
